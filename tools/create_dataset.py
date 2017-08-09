@@ -337,11 +337,11 @@ class DatasetCreator(object):
                                 platsYear.append(p["release"])
                             else:
                                 platsYear.append(None)
-                
+        
         i = 0
         for sh in gamesShot:
             s = self.gdb.getScreen(sh)
-            g = self.gdb.getGame(gamesId[i])
+            g = self.gdb.getGameByObject(gamesId[i])
             line = ""
             gplay = ""
             pers = ""
@@ -414,7 +414,8 @@ class DatasetCreator(object):
                     line = line[:-1]
                     line += "\n"
                     samples += 1
-                    arq.write(line)
+                    print line
+                    #arq.write(line)
                     line = ""
                     print samples
                     i+=1
@@ -475,10 +476,10 @@ def main():
     #Usado para recuperar os shots dos games que ficaram sem
     #dsc.recoverGamesNoScreens()
     
-    dieg_maq = ["594c25a7b80738c53336e777","593efd09b80738c53336e776","593efca1b80738c53336e775"]
-    nao_dieg_op = ["594c26a9b80738c53336e778","594c2f4db80738c53336e77f","594c284eb80738c53336e77a","594c2f0eb80738c53336e77e"]
-    dieg_op = ["594c2761b80738c53336e779","594c287bb80738c53336e77b","594c289db80738c53336e77c"]
-    nao_dieg_maq = ["594c2ec7b80738c53336e77d","594d77a3ed025f8dcdad2275","594d5de5b80738c53336e7ff"]
+    #dieg_maq = ["594c25a7b80738c53336e777","593efd09b80738c53336e776","593efca1b80738c53336e775"]
+    #nao_dieg_op = ["594c26a9b80738c53336e778","594c2f4db80738c53336e77f","594c284eb80738c53336e77a","594c2f0eb80738c53336e77e"]
+    #dieg_op = ["594c2761b80738c53336e779","594c287bb80738c53336e77b","594c289db80738c53336e77c"]
+    #nao_dieg_maq = ["594c2ec7b80738c53336e77d","594d77a3ed025f8dcdad2275","594d5de5b80738c53336e7ff"]
     
     #dsc.createDataset('dataset_exp3.json','base_dieg_maq.csv',None,dieg_maq)
     #dsc.createDataset('dataset_exp3.json','base_nao_dieg_op.csv',None,nao_dieg_op)
