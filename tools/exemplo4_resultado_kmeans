@@ -1,0 +1,81 @@
+=== Run information ===
+
+Scheme:       weka.clusterers.SimpleKMeans -init 0 -max-candidates 100 -periodic-pruning 10000 -min-density 2.0 -t1 -1.25 -t2 -1.0 -N 5 -A "weka.core.EuclideanDistance -R first-last" -I 50000 -num-slots 1 -S 10
+Relation:     exemplo4_weka-weka.filters.unsupervised.attribute.Remove-R1-weka.filters.unsupervised.attribute.Remove-R1-weka.filters.unsupervised.attribute.Remove-R28-34-weka.filters.unsupervised.attribute.Remove-R2-weka.filters.unsupervised.attribute.Remove-R25-weka.filters.unsupervised.attribute.Remove-R2
+Instances:    16469
+Attributes:   24
+              pleasure
+              dominance
+              black
+              blue
+              brown
+              green
+              gray
+Ignored:
+              year
+              saturation
+              tamura_contrast
+              arousal
+              hue_m
+              sat_m
+              val_m
+              orange
+              pink
+              purple
+              red
+              white
+              yellow
+              entropy_r
+              entropy_g
+              entropy_b
+              count
+Test mode:    evaluate on training data
+
+
+=== Clustering model (full training set) ===
+
+
+kMeans
+======
+
+Number of iterations: 57
+Within cluster sum of squared errors: 702.5025774825223
+
+Initial starting points (random):
+
+Cluster 0: 57.72332,71.31638,0.5139,0,0.3654,0,0.09588
+Cluster 1: 103.29626,118.08324,0.419,0.01609,0.01222,0.02492,0.07573
+Cluster 2: 95.0738,111.70332,0.09763,0.00031,0.046,0.00052,0.79118
+Cluster 3: 111.32214,127.4755,0.10896,0.00022,0.00186,0,0.62531
+Cluster 4: 118.16095,138.92015,0.10133,0.00003,0.08768,0.03769,0.48083
+
+Missing values globally replaced with mean/mode
+
+Final cluster centroids:
+                         Cluster#
+Attribute    Full Data          0          1          2          3          4
+             (16469.0)   (4014.0)   (2665.0)   (3271.0)   (4884.0)   (1635.0)
+=============================================================================
+pleasure       80.9641    37.3838   130.0829   102.6008    72.1344    90.9826
+dominance      97.3251    47.3563   152.0017   120.6218    88.0848   111.8744
+black           0.5128     0.9986     0.1588     0.1839     0.5891     0.3271
+blue            0.0184     0.0075     0.0661     0.0087     0.0122     0.0051
+brown            0.099     0.0411     0.0527     0.0793      0.092     0.3767
+green           0.0105      0.003     0.0476     0.0041     0.0033      0.003
+gray            0.2292     0.0607      0.151     0.5544      0.214      0.165
+
+
+
+
+Time taken to build model (full training data) : 0.5 seconds
+
+=== Model and evaluation on training set ===
+
+Clustered Instances
+
+0       4014 ( 24%)
+1       2665 ( 16%)
+2       3271 ( 20%)
+3       4884 ( 30%)
+4       1635 ( 10%)
+

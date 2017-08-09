@@ -1,0 +1,23 @@
+{
+    "code":"true",
+    "year":"true",
+    "platform":"true",
+    "gameplay":"true",
+    "perspectives":"true",
+    "genres":"true",
+    "narratives":"true",
+    "type":"false",
+    "brightness":"true",
+    "saturation":"true",
+    "tamura_contrast":"true",
+    "arousal":"true",
+    "pleasure":"true",
+    "dominance":"true",
+    "hsv_histogram":"true",
+    "cells":"false",
+    "color_names":"true",
+    "entropy":"true",
+    "edges_vert":"true",
+    "edges_horz":"true"
+}
+                            

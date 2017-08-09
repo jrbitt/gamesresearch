@@ -1,0 +1,74 @@
+{
+	"publisher" : "Jodi.org",
+	"genres" : [
+		"Artgame"
+	],
+	"narratives" : [
+		"Art"
+	],
+	"perspectives" : [
+		"1st-person"
+	],
+	"name" : "SOD",
+	"url" : "https://www.leonardo.info/gallery/gallery351/jodi.html",
+	"platforms" : [
+		{
+			"name" : "Windows",
+			"screens" : [
+				{
+					"shots" : [
+						{
+							"images" : [
+								{
+									"path" : "sod1.jpg"
+								}
+							]
+						}
+					],
+					"title" : "In game"
+				},
+                {
+					"shots" : [
+						{
+							"images" : [
+								{
+									"path" : "sod2.jpg"
+								}
+							]
+						}
+					],
+					"title" : "In game"
+				},
+                {
+					"shots" : [
+						{
+							"images" : [
+								{
+									"path" : "sod3.jpg"
+								}
+							]
+						}
+					],
+					"title" : "In game"
+				},
+                {
+					"shots" : [
+						{
+							"images" : [
+								{
+									"path" : "sod4.jpg"
+								}
+							]
+						}
+					],
+					"title" : "In game"
+				}
+			]
+		},
+        {
+            "name" : "Macintosh"
+        }
+	],
+	"release" : "1999",
+	"developer" : "Jodi.org"
+}
