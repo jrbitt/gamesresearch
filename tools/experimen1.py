@@ -1,15 +1,19 @@
 
 import numpy as np
 from scipy import stats
-
+import pandas as pd
 
 def loadSaveBase(loadfile,savefile):
     #Ler toda a base oficial
-    base = np.genfromtxt(loadfile,usecols=[0,1,2,3,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],delimiter=",",skip_header=1, names= ['goid','code','year','platform','Strategy','Tactics','Action','Compilation','Adventure','Sports','Educational','Racing','Driving','Puzzle','Role-Playing(RPG)','DLC','Add-on','Simulation','SpecialEdition','Artgame','brightness','saturation','tamura_contrast','arousal','pleasure','dominance','hue_m','sat_m','val_m','black','blue','brown','green','gray','orange','pink','purple','red','white','yellow','entropy_r','entropy_g','entropy_b'],dtype= ['S100','S100','u4','S50','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4'])
+    #base = np.genfromtxt(loadfile,usecols=[0,1,2,3,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],delimiter=",",skip_header=1, names= ['goid','code','year','platform','Strategy','Tactics','Action','Compilation','Adventure','Sports','Educational','Racing','Driving','Puzzle','Role-Playing(RPG)','DLC','Add-on','Simulation','SpecialEdition','Artgame','brightness','saturation','tamura_contrast','arousal','pleasure','dominance','hue_m','sat_m','val_m','black','blue','brown','green','gray','orange','pink','purple','red','white','yellow','entropy_r','entropy_g','entropy_b'],dtype= ['S100','S100','u4','S50','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4'])
+    
+    base = pd.read_csv(loadfile,usecols=[0,1,2,3,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],delimiter=",")
 
     #np.savetxt('exemplo.csv',base,delimiter='\t', fmt="%s %i %s %.5f %.5f")
     #np.savetxt('exemplo2.csv',base,delimiter='\t', fmt="%s %i %s %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f")
-    np.savetxt(savefile,base,delimiter='\t', fmt="%s %s %i %s %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f")
+    #np.savetxt(savefile,base,delimiter='\t', fmt="%s %s %i %s %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f")
+    
+    base.to_csv(savefile,sep='\t', index=False)
 
 #Adiciona a coluna do filename
 def addFilename(filename):

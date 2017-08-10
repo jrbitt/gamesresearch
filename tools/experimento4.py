@@ -11,7 +11,7 @@ import random
 Image.MAX_IMAGE_PIXELS = 1000000000  
 porX = False
 
-name = 'strategy'
+name = 'galloway'
 n = 40
 orig_color = (50,50,50,0)    
 replacement_color = (0,0,0,0) 
@@ -142,5 +142,5 @@ def mode03():
     final.save(name+".png")
 
 mode02()
-mode03()
+#mode03()
 #mode01()

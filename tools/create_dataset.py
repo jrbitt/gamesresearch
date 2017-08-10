@@ -337,7 +337,7 @@ class DatasetCreator(object):
                                 platsYear.append(p["release"])
                             else:
                                 platsYear.append(None)
-        
+            
         i = 0
         for sh in gamesShot:
             s = self.gdb.getScreen(sh)
@@ -373,6 +373,8 @@ class DatasetCreator(object):
                     
             if s != None:
                 line += str(gamesId[i])+","
+                if gamesShot[i] == "0990bda0cb0db8f45a4badfe63aaa783baf430bf":
+                    print gamesShot[i],gamesId[i],s["code"]
                 if data["code"] == "true": line += s["code"]+","
                 if platsYear[i] != None:
                     y = self.getOtherYear(platsYear[i])
@@ -414,11 +416,10 @@ class DatasetCreator(object):
                     line = line[:-1]
                     line += "\n"
                     samples += 1
-                    print line
-                    #arq.write(line)
+                    arq.write(line)
                     line = ""
                     print samples
-                    i+=1
+                i+=1
                 
     def foo(self):
         codesGames = self.gdb.getGameCodes()
@@ -476,19 +477,19 @@ def main():
     #Usado para recuperar os shots dos games que ficaram sem
     #dsc.recoverGamesNoScreens()
     
-    #dieg_maq = ["594c25a7b80738c53336e777","593efd09b80738c53336e776","593efca1b80738c53336e775"]
+    dieg_maq = ["594c25a7b80738c53336e777","593efd09b80738c53336e776","593efca1b80738c53336e775"]
     #nao_dieg_op = ["594c26a9b80738c53336e778","594c2f4db80738c53336e77f","594c284eb80738c53336e77a","594c2f0eb80738c53336e77e"]
     #dieg_op = ["594c2761b80738c53336e779","594c287bb80738c53336e77b","594c289db80738c53336e77c"]
     #nao_dieg_maq = ["594c2ec7b80738c53336e77d","594d77a3ed025f8dcdad2275","594d5de5b80738c53336e7ff"]
     
-    #dsc.createDataset('dataset_exp3.json','base_dieg_maq.csv',None,dieg_maq)
+    dsc.createDataset('dataset_exp3.json','base_dieg_maq.csv',None,dieg_maq)
     #dsc.createDataset('dataset_exp3.json','base_nao_dieg_op.csv',None,nao_dieg_op)
     #dsc.createDataset('dataset_exp3.json','base_dieg_op.csv',None,dieg_op)
     #dsc.createDataset('dataset_exp3.json','base_nao_dieg_maq.csv',None,nao_dieg_maq)
 
     
     #Oficial
-    dsc.createDataset('dataset_exp3.json','base_oficial_final.csv')
+    #dsc.createDataset('dataset_exp3.json','base_oficial_final.csv')
     
     #dsc.createDataset('dataset_exp3.json','base_oficial_final.csv')
     

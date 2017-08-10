@@ -52,7 +52,7 @@ class Centroid(object):
     
     def __init__(self,line,c):
         self._id = c
-        self.values = line.split(',')
+        self.values = line.split('\t')
         for i in range(len(self.values)):
             self.values[i] = float(self.values[i])      
         self.images = []
@@ -196,17 +196,19 @@ class Centroid(object):
         self.images = self.images[:lim]
         arq = open('nomes'+str(self._id)+".txt",'w')
         for i in range(lim):
+            print f[i]
             #self.images[i].code = gdb.getImageAverage(f[i])
             self.images[i].code = s[i]
             g = gdb.getGameByObject(f[i])
-            arq.write(g['name']+" "+s[i]+'\n')
+            arq.write(g['name'].encode('utf-8')+" "+s[i]+" "+str(g['_id'])+'\n')
         arq.close()
             
-    def organizeByGames(self,maxGames):
+    def organizeByGames(self,colorsByCol,maxGames):
         self.findDistances()
         print "tot.images: "+str(len(self.images))
-        sorted(self.images, key=lambda image: Screen.distance)
+        self.images.sort(key=lambda image: image.distance)
         self.filterGames(maxGames)
+        self.plotManovich(colorsByCol)
             
     def organize(self,colorsByCol,maxImgs=-1):
         self.findDistances()
@@ -366,23 +368,39 @@ class ImageCreator(object):
                 gm = gdb.getGameByObject(gid)
                 if gm.has_key('genres'):
                     self.rep(gm['genres'])
-                    for g in self.genres:
-                        if any(ig == g for ig in gm['genres']):
-                            c,mx = self.getClass(vls)
-                            
-                            out.write(str(c)+" ")
-                            out.write(code+" ")
-                            out.write(gid+"\n")
-                            
-                            img = Screen(vls,path,code,gid,c,tokens)
-                            img.distance = mx
+                    if self.genres != None:
+                        for g in self.genres:
+                            if any(ig == g for ig in gm['genres']):
+                                c,mx = self.getClass(vls)
 
-                            self.addValue(img.tokens,colsPrint)
-                            self.images.append(img)
-                            
-                            print i
-                            i += 1
-                            break
+                                out.write(str(c)+" ")
+                                out.write(code+" ")
+                                out.write(gid+"\n")
+
+                                img = Screen(vls,path,code,gid,c,tokens)
+                                img.distance = mx
+
+                                self.addValue(img.tokens,colsPrint)
+                                self.images.append(img)
+                                print i
+                                i += 1
+                                break 
+                    else:
+                        c,mx = self.getClass(vls)
+
+                        out.write(str(c)+" ")
+                        out.write(code+" ")
+                        out.write(gid+"\n")
+
+                        img = Screen(vls,path,code,gid,c,tokens)
+                        img.distance = mx
+
+                        self.addValue(img.tokens,colsPrint)
+                        self.images.append(img)
+                        print i
+                        i += 1
+
+                                                       
         arq.close()
         out.close()
         
@@ -403,108 +421,12 @@ class ImageCreator(object):
 
     def createImagesByGames(self,rgb,offset,maxGames=-1):
         i = 0
+        colorsByCol = {10: {'1990': (207, 25, 49), '2000': (135, 82, 128), '2010': (57, 75, 79), '1980': (79, 36, 118), '1970': (103, 249, 226)}}
         for c in self.centroids:
-            c.organizeByGames(maxGames)
-            c.drawSpiral(rgb,offset,self.colorsByCol,"centro"+str(i)+".png")
-            i += 1
-        print self.colorsByCol
+            c.organizeByGames(self.colorsByCol,maxGames)
+            #c.drawSpiral(rgb,offset,self.colorsByCol,"centro"+str(i)+".png")
+            #i += 1
 
-    def plot(self):        
-        tmp = []
-        for i in self.images:
-            tmp.append(i.values)
-        df = pd.DataFrame(tmp)
-        
-        p = PCA(n_components=2)
-        X = df.as_matrix()
-        p.fit(X)
-        subspace = pd.DataFrame(p.fit_transform(X),columns=["x","y"])
-        
-        num_bins = 100
-        x = [subspace.x.min(),subspace.x.max()]
-        y = [subspace.y.min(),subspace.y.max()]
-        tmp = pd.DataFrame(x,columns=["x"])
-        tmp["y"] = y
-        subspace = subspace.append(tmp)
-        subspace['x_bin'] = pd.cut(subspace['x'],num_bins,labels=False)
-        subspace['y_bin'] = pd.cut(subspace['y'],num_bins,labels=False)
-
-        subspace = subspace[:40]
-        factor = 1
-        subspace["x_grid"] = subspace.x_bin * factor
-        subspace["y_grid"] = subspace.y_bin * factor
-        centroid_point = []
-        n = len(subspace.index)
-        for i in range(n):
-            centroid_point.append(Point(subspace.x_grid.loc[i],subspace.y_grid.loc[i]))
-    
-        subspace['centroid_point'] = centroid_point
-        grid_side = num_bins * factor
-        
-        x,y = range(grid_side) * grid_side, np.repeat(range(grid_side),grid_side)
-        grid_list = pd.DataFrame(x,columns=['x'])
-        grid_list['y'] = y
-        point = []
-        n = len(grid_list.index)
-        for i in range(n):
-            point.append(Point(grid_list.x.loc[i],grid_list.y.loc[i]))
-
-        grid_list['point'] = point
-        open_grid = list(grid_list.point)
-        centroids = list(subspace.centroid_point)
-        
-
-        collection = pd.DataFrame()
-        n = len(collection.index)
-        local_path = []
-        cls = []
-        dst = []
-        tk = []
-        for i in self.images:
-            local_path.append(i.path+i.code+".jpg")
-            cls.append(i.cluster)
-            dst.append(i.distance)
-            tk.append(i.tokens)
-        collection['local_path'] = local_path            
-        collection['clusters'] = cls    
-        collection['cluster_dist'] = dst  
-        collection['tokens'] = tk 
-        
-        
-        thumb_side = 100
-        px_w = thumb_side * grid_side
-        px_h = thumb_side * grid_side
-        canvas = Image.new('RGBA',(px_w,px_h),(50,50,50,0))
-        
-        iterations = list(collection.clusters.value_counts())[0]
-        print "iterations",iterations
-        for k in range(iterations):
-            print "plot_",k    
-            n = len(subspace.index)
-            for i in range(n):
-                centroid = subspace.centroid_point.loc[i]
-                try:
-                    # again, a workaround for indexing difference
-                    candidates = collection[collection.clusters==i]
-                    candidates = candidates.sort_values("cluster_dist",inplace=False)
-                    best = candidates.iloc[0]
-                    tks = best.tokens
-                    im = Image.open(best.local_path)
-                    im.thumbnail((thumb_side,thumb_side),Image.ANTIALIAS)
-                    #i.img = im
-                    self._paintCols(5,im,tks,2)
-                    closest_open = min(open_grid,key=lambda x: centroid.distance(x))
-                    x = int(closest_open.x) * thumb_side
-                    y = int(closest_open.y) * thumb_side
-                    canvas.paste(im,(x,y))
-                    idx = collection[collection.local_path==best.local_path].index
-                    collection.drop(idx,inplace=True)
-                    open_grid.remove(closest_open)
-                except:
-                    print "cluster empty"
-        canvas.save("saida.png")
-        
-        print self.colorsByCol
         
     def createImages(self,rgb,offset,maxImgs=-1):
         i = 0
@@ -570,17 +492,17 @@ def main():
     #ic.setGenres(['Puzzle','Artgame','Compilation'])
     
     #ic.setGenres(['Adventure'])
-    ic.setGenres(['Strategy','Tactics','Role-Playing (RPG)','Simulation'])
+    #ic.setGenres(['Strategy','Tactics','Role-Playing (RPG)','Simulation'])
     #Uso do Weka SBGames
-    ic.initNoClasses('centroides_weka.txt','nova3.csv','/Users/jrbitt/Dropbox/full2/',[9],[3,4,5,6,7,8])  
+    ic.initNoClasses('centroides_galloway.txt','nova3.csv','/Users/jrbitt/Dropbox/full2/',[10],[4,5,6,7,8,9])  
     
     #ic.plot()
         
     #Usado para fazer as imagens do Galloway
     #ic.initNoClasses('centroides_galloway.txt','exemplo5.csv','/Users/jrbitt/Dropbox/full2/',[23])  
     #ic.init('centroides_shooter_25.txt','classes_shooter_25.txt','base_shooter.csv','/Users/jrbitt/gamesresearch/games/games/spiders/screens/full/',[0])
-    ic.createImages((128,128,128),10)
-    #ic.createImagesByGames((128,128,128),10,36)
+    #ic.createImages((128,128,128),10)
+    ic.createImagesByGames((128,128,128),10,25)
     #ic.createImage(50,"clusters_galloway.png",(3,1),(128,128,128))
                 
         

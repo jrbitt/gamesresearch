@@ -20,6 +20,7 @@ metrics.interim
 *.pyc
 *.xls
 *.csv
+*.ods
 *.mp4
 *.txt
 *.wt
