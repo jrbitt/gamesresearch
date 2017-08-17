@@ -1,6 +1,6 @@
 from PIL import Image
 from PIL import ImageDraw
-import math, random, sys
+import math, random, sys, codecs
 from database import GamesDatabase
         
 from sklearn.decomposition import PCA
@@ -195,15 +195,17 @@ class Centroid(object):
         
         gdb = GamesDatabase()
         self.images = self.images[:lim]
-        arq = open('nomes'+str(self._id)+".txt",'w')
+        arq = codecs.open('nomes'+str(self._id)+".txt",'w',"utf-8")
         for i in range(lim):
             print f[i]
             c = gdb.getImageAverage(f[i])
             if c!= None:
                 self.images[i].code = c
-            #self.images[i].code = s[i]
+            else:
+                self.images[i].code = s[i]
             g = gdb.getGameByObject(f[i])
-            arq.write(g['name'].encode('utf-8')+"\t"+s[i]+"\t"+str(g['_id'])+'\n')
+            w = g['name'].replace(u'\xe3', u' ')
+            arq.write(w+"\t"+self.images[i].code+"\t"+str(g['_id'])+'\n')
         arq.close()
             
     def organizeByGames(self,colorsByCol,maxGames):
