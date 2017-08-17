@@ -115,7 +115,7 @@ class GamesDatabase(object):
         
     def getImageAverage(self,goid):
         d = self.db.avgscreens.find({"goid":goid})
-        if d != None:
+        if d.count()>0:
             return d[0]['near_screen']
         else:
             return None

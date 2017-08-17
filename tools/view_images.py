@@ -199,8 +199,8 @@ class Centroid(object):
         for i in range(lim):
             print f[i]
             c = gdb.getImageAverage(f[i])
-            #if c!= None:
-            self.images[i].code = c
+            if c!= None:
+                self.images[i].code = c
             #self.images[i].code = s[i]
             g = gdb.getGameByObject(f[i])
             arq.write(g['name'].encode('utf-8')+"\t"+s[i]+"\t"+str(g['_id'])+'\n')

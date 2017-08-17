@@ -11,7 +11,7 @@ import random
 Image.MAX_IMAGE_PIXELS = 1000000000  
 porX = False
 
-name = 'galloway'
+name = 'galloway_media'
 n = 40
 orig_color = (50,50,50,0)    
 replacement_color = (0,0,0,0) 
