@@ -115,7 +115,10 @@ class GamesDatabase(object):
         
     def getImageAverage(self,goid):
         d = self.db.avgscreens.find({"goid":goid})
-        return d[0]['near_screen']
+        if d != None:
+            return d[0]['near_screen']
+        else:
+            return None
         
     def setType(self,typ,code,features=None,cells=None,tw=0,th=0):
         d = {}

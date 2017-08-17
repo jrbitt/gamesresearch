@@ -118,31 +118,27 @@ gcodes = gdb.getGameCodes()
 
 gameCodes = []
 for gc in gcodes:
-    
+    if str(gc)=='594dbc84b80738c53336e96e':
+        a = 0
     g = gdb.getGame(gc)
     plats = g['platforms']
-    cp = 0
+    screenCodes = []
     for p in plats:
         if p.has_key('screens'):
             scr = p['screens']
-            screenCodes = []
             for s in scr:
                 if s.has_key('shots'):
                     sh = s['shots']
                     screenCodes.append(sh[0]['code'])
-            if len(screenCodes)>0:
-                #Dado um game para a platforma n tenho os valores medios
-                o = createImageAverage(screenCodes)
-                if o != None:
-                    o['goid'] = str(gc)
-                    o['platform'] = cp
-                    print cp
-                    #Encontrar a screen mais semelhante a media
-                    scrCode, val = findScreen(screenCodes,o)
-                    print val
-                    o['near_screen'] = scrCode
-                    o['distance'] = val
-                    gdb.addImageAverage(o)
-        cp += 1
+    if len(screenCodes)>0:
+        #Dado um game para a platforma n tenho os valores medios
+        o = createImageAverage(screenCodes)
+        if o != None:
+            o['goid'] = str(gc)
+            #Encontrar a screen mais semelhante a media
+            scrCode, val = findScreen(screenCodes,o)
+            o['near_screen'] = scrCode
+            o['distance'] = val
+            gdb.addImageAverage(o)
                 
         

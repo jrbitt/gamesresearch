@@ -16,6 +16,7 @@ class Screen(object):
     values = None
     distance = -1
     goid = None
+    platform = -1
     
     def __init__(self,values,path,code,gid,cls=None,tks=None):
         self.values = values
@@ -197,10 +198,12 @@ class Centroid(object):
         arq = open('nomes'+str(self._id)+".txt",'w')
         for i in range(lim):
             print f[i]
-            #self.images[i].code = gdb.getImageAverage(f[i])
-            self.images[i].code = s[i]
+            c = gdb.getImageAverage(f[i])
+            #if c!= None:
+            self.images[i].code = c
+            #self.images[i].code = s[i]
             g = gdb.getGameByObject(f[i])
-            arq.write(g['name'].encode('utf-8')+" "+s[i]+" "+str(g['_id'])+'\n')
+            arq.write(g['name'].encode('utf-8')+"\t"+s[i]+"\t"+str(g['_id'])+'\n')
         arq.close()
             
     def organizeByGames(self,colorsByCol,maxGames):
