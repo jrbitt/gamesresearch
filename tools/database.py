@@ -79,7 +79,7 @@ class GamesDatabase(object):
             return s
         
     def getGame(self,code):
-        cr = self.db.games.find({"_id":code})
+        cr = self.db.games.find({"_id":ObjectId(code)})
         for s in cr:
             return s
         

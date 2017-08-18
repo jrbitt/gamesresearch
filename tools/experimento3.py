@@ -117,10 +117,10 @@ gcodes = gdb.getGameCodes()
 
 
 gameCodes = []
+print gcodes
+
 for gc in gcodes:
-    if str(gc)=='594dbc84b80738c53336e96e':
-        a = 0
-    g = gdb.getGame(gc)
+    g = gdb.getGame('59389d13c63d15faf573a4b1')
     plats = g['platforms']
     screenCodes = []
     for p in plats:
@@ -130,6 +130,7 @@ for gc in gcodes:
                 if s.has_key('shots'):
                     sh = s['shots']
                     screenCodes.append(sh[0]['code'])
+                    
     if len(screenCodes)>0:
         #Dado um game para a platforma n tenho os valores medios
         o = createImageAverage(screenCodes)
@@ -140,5 +141,5 @@ for gc in gcodes:
             o['near_screen'] = scrCode
             o['distance'] = val
             gdb.addImageAverage(o)
-                
+
         
