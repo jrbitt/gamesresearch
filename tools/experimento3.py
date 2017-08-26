@@ -120,7 +120,8 @@ gameCodes = []
 print gcodes
 
 for gc in gcodes:
-    g = gdb.getGame(gc)
+    #g = gdb.getGame(gc)
+    g = gdb.getGame('59389d13c63d15faf573a4b1')
     plats = g['platforms']
     screenCodes = []
     for p in plats:

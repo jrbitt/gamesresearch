@@ -458,7 +458,7 @@ def main(argv):
     gui = ImageClassifierGui()
     gdb = GamesDatabase()
     
-    path = '/Users/jrbitt/gamesresearch/games/games/screens/full/'
+    path = '/Users/jrbitt/Dropbox/full2/'
     #gdb.init('/Users/jrbitt/gamesresearch/games/games/spiders/screens/full/',True)
     
 

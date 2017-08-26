@@ -43,7 +43,9 @@ class GamesDatabase(object):
         else:
             cursor = self.collection.find({})
 
+        #arq = open('urls.txt','w')
         for doc in cursor:
+            print doc['_id']
             pl = doc['platforms']
             for p in pl:
                 if p.has_key('screens'):
@@ -52,13 +54,19 @@ class GamesDatabase(object):
                         if "shots" in sh:
                             shots = sh['shots'][0]
                             if self.db.screens.find({"code":shots['code']}).count()==0:
+                                print "include",shots['code'] 
                                 sd = ShotData()
                                 sd.filename=self.path+shots['code']+".jpg"
                                 sd.oid=doc['_id']
                                 sd.code=shots['code']
                                 self.screens.append(sd)
+                                
+                                #arq.write(shots['image_urls'][0]+'\n')
+                                
         if shuffle:
             random.shuffle(self.screens)
+        
+        #arq.close()
         
     def addGameByJSON(self,data):
         f = self.collection.find_one(data)
