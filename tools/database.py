@@ -1,3 +1,4 @@
+
 import pymongo
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -124,7 +125,7 @@ class GamesDatabase(object):
     def getImageAverage(self,goid):
         d = self.db.avgscreens.find({"goid":goid})
         if d.count()>0:
-            return d[0]['near_screen']
+            return d[0]['image_average_rgb']
         else:
             return None
         

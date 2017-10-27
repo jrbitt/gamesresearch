@@ -91,6 +91,12 @@ class Centroid(object):
     def plotManovich(self,colorsByCol):
         if len(self.images) == 0:
             return
+        if len(self.images) == 1:
+            im = Image.open(self.images[0].path+self.images[0].code+".jpg")
+            im.thumbnail((100,100),Image.ANTIALIAS)
+            im.save(str(self._id)+".png")
+            return
+                
         print colorsByCol
         tmp = []
         for i in self.images:
@@ -200,7 +206,7 @@ class Centroid(object):
             print f[i]
             c = gdb.getImageAverage(f[i])
             if c!= None:
-                self.images[i].code = c
+                self.images[i].code = "/avg_rgb/"+c
             else:
                 self.images[i].code = s[i]
             g = gdb.getGameByObject(f[i])
@@ -426,7 +432,7 @@ class ImageCreator(object):
 
     def createImagesByGames(self,rgb,offset,maxGames=-1):
         i = 0
-        colorsByCol = {10: {'1990': (207, 25, 49), '2000': (135, 82, 128), '2010': (57, 75, 79), '1980': (79, 36, 118), '1970': (103, 249, 226)}}
+        self.colorsByCol = {10: {'1990': (207, 25, 49), '2000': (135, 82, 128), '2010': (57, 75, 79), '1980': (79, 36, 118), '1970': (103, 249, 226)}}
         for c in self.centroids:
             c.organizeByGames(self.colorsByCol,maxGames)
             #c.drawSpiral(rgb,offset,self.colorsByCol,"centro"+str(i)+".png")
@@ -435,7 +441,7 @@ class ImageCreator(object):
         
     def createImages(self,rgb,offset,maxImgs=-1):
         i = 0
-        colorsByCol = {10: {'1990': (207, 25, 49), '2000': (135, 82, 128), '2010': (57, 75, 79), '1980': (79, 36, 118), '1970': (103, 249, 226)}}
+        self.colorsByCol = {10: {'1990': (207, 25, 49), '2000': (135, 82, 128), '2010': (57, 75, 79), '1980': (79, 36, 118), '1970': (103, 249, 226)}}
         for c in self.centroids:
             c.organize(self.colorsByCol,maxImgs)
             #c.drawSpiral(rgb,offset,self.colorsByCol,"centro"+str(i)+".png")
@@ -495,18 +501,26 @@ def main():
     ic = ImageCreator()
     
     #ic.setGenres(['Puzzle','Artgame','Compilation'])
-    
     #ic.setGenres(['Adventure'])
+    #ic.setGenres(['Action'])
     #ic.setGenres(['Strategy','Tactics','Role-Playing (RPG)','Simulation'])
+    ic.setGenres(['Puzzle','Artgame'])
+
+    #Uso tese
+    ic.initNoClasses('clusters_tese.txt','nova4_v2.csv','/Users/jrbitt/Dropbox/full2/',[10],[4,5,6,7,8,9,12])  
+    
     #Uso do Weka SBGames
-    ic.initNoClasses('centroides_galloway.txt','nova3.csv','/Users/jrbitt/Dropbox/full2/',[10],[4,5,6,7,8,9])  
+    #ic.initNoClasses('centroides_galloway.txt','nova3.csv','/Users/jrbitt/Dropbox/full2/',[10],##[4,5,6,7,8,9])  
     
     #ic.plot()
         
     #Usado para fazer as imagens do Galloway
     #ic.initNoClasses('centroides_galloway.txt','exemplo5.csv','/Users/jrbitt/Dropbox/full2/',[23])  
     #ic.init('centroides_shooter_25.txt','classes_shooter_25.txt','base_shooter.csv','/Users/jrbitt/gamesresearch/games/games/spiders/screens/full/',[0])
+    
+    #Gerar as imagens
     #ic.createImages((128,128,128),10)
+    
     ic.createImagesByGames((128,128,128),10,25)
     #ic.createImage(50,"clusters_galloway.png",(3,1),(128,128,128))
                 

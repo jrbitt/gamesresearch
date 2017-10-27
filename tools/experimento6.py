@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 def pearson(ia,ib):
-    arq = open('nova4.csv','r')
+    arq = open('nova2_v2_weka.csv','r')
     a = []
     b = []
     cont = 0
@@ -14,7 +14,6 @@ def pearson(ia,ib):
             cont = 1
         else:
             tks = l.split('\t')     
-            print tks
             tks[len(tks)-1] = tks[len(tks)-1][:-1]
             a.append(float(tks[ia]))
             b.append(float(tks[ib]))
@@ -22,18 +21,18 @@ def pearson(ia,ib):
     return a, b
 
 def calculatePearson():
-    for ai in range(4,36):
-        for bi in range(4,36):
-            if ai==27 or bi==27:
-                continue
-            else:
-                a,b = pearson(ai,bi)
-                res = stats.pearsonr(a,b)
-                if res[0]>0.3 and ai != bi:
-                    print str(ai)+" "+str(bi)
-                    print res
-
-arq = open('nova4.csv','r')
+    for ai in range(1,18):
+        for bi in range(1,18):
+            #if ai==27 or bi==27:
+            #    continue
+            #else:
+            a,b = pearson(ai,bi)
+            res = stats.pearsonr(a,b)
+            if res[0]>0.85 and ai != bi:
+                print str(ai)+" "+str(bi)
+                print res
+'''
+arq = open('nova2_v2_weka.csv','r')
 cont = 0
 clusters = [0]*40;
 for line in arq:
@@ -58,6 +57,7 @@ for i in lin:
     print i
     
 arq.close()
+'''
 
 #a,b = pearson(1,9)
 #res = stats.pearsonr(a,b)
@@ -71,3 +71,5 @@ arq.close()
 #            yticklabels=corr.columns.values)
 
 #plt.show()
+
+calculatePearson()

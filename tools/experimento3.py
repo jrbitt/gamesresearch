@@ -1,10 +1,43 @@
 #Calcular a imagem media
 
 from database import GamesDatabase
+from datetime import datetime
+from scipy.spatial import distance
+from PIL import Image
+ 
 import math
 import sys
+import hashlib
+
+import numpy as np
+import glob
 
 gdb = GamesDatabase()
+
+def image_histogram(filename):
+    try:
+        im = Image.open(filename)
+        im_vals1 = np.zeros(256)
+        im_vals2 = np.zeros(256)
+        im_vals3 = np.zeros(256)
+
+        r,g,b = im.split()
+
+        pixels_r = list(r.getdata())
+        pixels_g = list(g.getdata())
+        pixels_b = list(b.getdata())
+        pix_r = np.array(pixels_r)
+        pix_g = np.array(pixels_g)
+        pix_b = np.array(pixels_b)
+        for idx in range (0, len(pix_r)):
+            im_vals1[pix_r[idx]] += 1
+            im_vals2[pix_g[idx]] += 1
+            im_vals3[pix_b[idx]] += 1
+        histogram = list(im_vals1) + list(im_vals2) + list(im_vals3)
+        im.close()
+        return histogram
+    except IOError:
+        return None
 
 def addArray(ar,other):
     for i in range(len(ar)):
@@ -28,6 +61,19 @@ def sumArray(ar):
         s+= i
     return s
 
+def dist(p,q):
+    dist = distance.euclidean(p,q)
+    return dist
+
+def euclidianImage(ref,scr,images_path):
+    a = image_histogram(images_path+'avg_rgb/'+ref['image_average_rgb']+'.jpg')
+    b = image_histogram(images_path+scr['code']+'.jpg')
+    if a!=None and b!=None:
+        d = dist(a,b)
+        return d
+    else:
+        return None
+
 def euclidian(a,b):
     vet = [0.0]*6
     vet[0] = (a['saturation']-b['saturation'])**2
@@ -49,6 +95,19 @@ def euclidian(a,b):
         
     return math.sqrt(s)
 
+def findScreenByImages(scrCodes, ref,images_path):
+    code = None
+    value = sys.float_info.max
+    for s in scrCodes:
+        screen = gdb.getScreen(s)
+        if screen != None:
+            e = euclidianImage(ref,screen,images_path)
+            if e!=None:
+                if e< value:
+                    code = s
+                    value = e
+    return code,value
+    
 def findScreen(scrCodes, ref):
     code = None
     value = sys.float_info.max
@@ -62,8 +121,55 @@ def findScreen(scrCodes, ref):
                     value = e
     return code,value
         
+def createImages(imgs):
+    width, height = imgs[0].size
+    rpx = []
+    gpx = []
+    bpx = []
+    #pegar as dimensoes da imagem
+    for i in imgs:
+        w, h = i.size
+        if w>width:
+            width = w
+        if h>height:
+            height = h
+            
+    #pegar os canais
+    for i in imgs:
+        ri = i.resize((width,height),resample=Image.LANCZOS)
+        red, green, blue = ri.split()
+        rpx.append(red.getdata())
+        gpx.append(green.getdata())
+        bpx.append(blue.getdata())
+        i.close()
+        del i
     
-def createImageAverage(scrCodes):
+    #criar para cada canal
+    sr = [0.0]*width*height
+    sg = [0.0]*width*height
+    sb = [0.0]*width*height
+    
+    #somar os pixels por canal
+    for k in range(width*height):
+        for m in range(len(rpx)):
+            sr[k] += rpx[m][k]
+            sg[k] += gpx[m][k]
+            sb[k] += bpx[m][k]
+    
+    #criar as tuplas atraves das medias
+    tuplas = [0]*width*height
+    for k in range(width*height):
+        sr[k] = sr[k] / len(imgs)
+        sg[k] = sg[k] / len(imgs)
+        sb[k] = sb[k] / len(imgs)
+        tuplas[k] = (int(sr[k]),int(sg[k]),int(sb[k]))
+        
+    im = Image.new('RGB',(width, height))
+    im.putdata(tuplas)
+    
+    return im
+    
+def createImageAverage(scrCodes,images_path):
     sat = 0
     brig = 0
     tamura = 0
@@ -76,10 +182,13 @@ def createImageAverage(scrCodes):
     st = [0.0]*100
     v = [0.0]*100
     tam = 0
+    imgs = []
     for s in scrCodes:
         screen = gdb.getScreen(s)
         if screen != None:
             if screen.has_key('saturation'):
+                i = Image.open(images_path+screen['code']+".jpg")
+                imgs.append(i)
                 sat += screen['saturation']
                 brig += screen['brightness']
                 tamura += screen['tamura_contrast']
@@ -109,6 +218,14 @@ def createImageAverage(scrCodes):
         hsv['val'] = avgArray(v,tam)
         obj['hsv_histogram'] = hsv
 
+        irgb = createImages(imgs)
+        now = datetime.now()
+        ivalue = hashlib.sha1(str(now.microsecond)).hexdigest()
+        irgb.save(images_path+'avg_rgb/'+ivalue+'.jpg')
+        irgb.close()
+        
+        obj['image_average_rgb'] = ivalue
+        
         return obj
     else:
         return None
@@ -117,30 +234,40 @@ gcodes = gdb.getGameCodes()
 
 
 gameCodes = []
-print gcodes
+images_path = '/Users/jrbitt/Dropbox/full2/'
+
+a = open('excluir.txt')
+excluir = a.readlines();
+for i in range(len(excluir)):
+    excluir[i] = excluir[i][:-1]
+a.close()
 
 for gc in gcodes:
-    #g = gdb.getGame(gc)
-    g = gdb.getGame('59389d13c63d15faf573a4b1')
-    plats = g['platforms']
-    screenCodes = []
-    for p in plats:
-        if p.has_key('screens'):
-            scr = p['screens']
-            for s in scr:
-                if s.has_key('shots'):
-                    sh = s['shots']
-                    screenCodes.append(sh[0]['code'])
-                    
-    if len(screenCodes)>0:
-        #Dado um game para a platforma n tenho os valores medios
-        o = createImageAverage(screenCodes)
-        if o != None:
-            o['goid'] = str(gc)
-            #Encontrar a screen mais semelhante a media
-            scrCode, val = findScreen(screenCodes,o)
-            o['near_screen'] = scrCode
-            o['distance'] = val
-            gdb.addImageAverage(o)
+    g = gdb.getGame(gc)
+    if str(gc) not in excluir:
+        print gc
+        #g = gdb.getGame('59389d13c63d15faf573a4b1')
+        plats = g['platforms']
+
+        for p in plats:
+            screenCodes = []
+            if p.has_key('screens'):
+                scr = p['screens']
+                for s in scr:
+                    if s.has_key('shots'):
+                        sh = s['shots']
+                        screenCodes.append(sh[0]['code'])
+
+            if len(screenCodes)>0:
+                #Dado um game para a platforma n tenho os valores medios
+                o = createImageAverage(screenCodes,images_path)
+                if o != None:
+                    o['platform'] = p['name']
+                    o['goid'] = str(gc)
+                    #Encontrar a screen mais semelhante a media
+                    scrCode, val = findScreenByImages(screenCodes,o,images_path)
+                    o['near_screen'] = scrCode
+                    o['distance'] = val
+                    gdb.addImageAverage(o)
 
         

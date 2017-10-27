@@ -7,23 +7,27 @@ def loadSaveBase(loadfile,savefile):
     #Ler toda a base oficial
     #base = np.genfromtxt(loadfile,usecols=[0,1,2,3,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],delimiter=",",skip_header=1, names= ['goid','code','year','platform','Strategy','Tactics','Action','Compilation','Adventure','Sports','Educational','Racing','Driving','Puzzle','Role-Playing(RPG)','DLC','Add-on','Simulation','SpecialEdition','Artgame','brightness','saturation','tamura_contrast','arousal','pleasure','dominance','hue_m','sat_m','val_m','black','blue','brown','green','gray','orange','pink','purple','red','white','yellow','entropy_r','entropy_g','entropy_b'],dtype= ['S100','S100','u4','S50','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','S10','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4','f4'])
     
-    base = pd.read_csv(loadfile,usecols=[0,1,2,3,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],delimiter=",")
+    base = pd.read_csv(loadfile,usecols=[0,1,2,3,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],delimiter="\t")
 
     #np.savetxt('exemplo.csv',base,delimiter='\t', fmt="%s %i %s %.5f %.5f")
     #np.savetxt('exemplo2.csv',base,delimiter='\t', fmt="%s %i %s %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f")
     #np.savetxt(savefile,base,delimiter='\t', fmt="%s %s %i %s %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f")
     
-    base.to_csv(savefile,sep='\t', index=False)
+    base.to_csv(savefile,sep=';', index=False)
 
 #Adiciona a coluna do filename
 def addFilename(filename):
     arq = open(filename,'r')
     linhas = []
+    prim = True
     for l in arq:
-        tks = l.split(' ')
-        tks[len(tks)-1] = tks[len(tks)-1][:-1]
-        tks.append(tks[1]+".jpg")
-        linhas.append(tks)
+        if prim:
+            prim = False
+        else:
+            tks = l.split(';')
+            tks[len(tks)-1] = tks[len(tks)-1][:-1]
+            tks.append(tks[1]+".jpg")
+            linhas.append(tks)
     arq.close()
     return linhas
 
@@ -39,7 +43,7 @@ def addShapes(shapefile):
 
 def createBase(linhas, mapa,filename):
     arq = open(filename,'w')
-    arq.write('goid\tcode\tyear\tplatform\tbrightness\tsaturation\ttamura_contrast\tarousal\tpleasure\tdominance\thue_m\tsat_m\tval_m\tblack\tblue\tbrown\tgreen\tgray\torange\tpink\tpurple\tred\twhite\tyellow\tentropy_r\tentropy_g\tentropy_b\tfilename\tcount\ttotal_area\tavg_size\tperc_area\tmean\tperimeter\tcirc\tsolidity\n')
+    arq.write('goid\tcode\tyear\tplatform\tbrightness\tsaturation\ttamura_contrast\tarousal\tpleasure\tdominance\thue_m\tsat_m\tval_m\tblack\tblue\tbrown\tgreen\tgray\torange\tpink\tpurple\tred\twhite\tyellow\tentropy_r\tentropy_g\tentropy_b\tfilename\tcount\ttotal_area\tavg_size\tperc_area\tperimeter\tcirc\tsolidity\n')
     cont = 0
     for l in linhas:
         if l[2] != '1900' and l[2] != '4444':
@@ -91,10 +95,10 @@ def calculatePearson():
 base = None
 linhas = None
 mapa = None
-loadSaveBase("base_oficial_final.csv",'nova1.csv')
-linhas = addFilename('exemplo3.csv')
-mapa = addShapes('shapes30mil.csv')
-createBase(linhas,mapa,'nova2.csv')
+loadSaveBase("base_oficial_final_v2.csv",'nova1_v2.csv')
+linhas = addFilename('nova1_v2.csv')
+mapa = addShapes('shapes40mil.csv')
+createBase(linhas,mapa,'nova3_v2.csv')
 
 #calculatePearson()
 
