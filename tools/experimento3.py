@@ -1,6 +1,8 @@
 #Calcular a imagem media
 
 from database import GamesDatabase
+import imglib
+
 from datetime import datetime
 from scipy.spatial import distance
 from PIL import Image
@@ -120,54 +122,6 @@ def findScreen(scrCodes, ref):
                     code = s
                     value = e
     return code,value
-        
-def createImages(imgs):
-    width, height = imgs[0].size
-    rpx = []
-    gpx = []
-    bpx = []
-    #pegar as dimensoes da imagem
-    for i in imgs:
-        w, h = i.size
-        if w>width:
-            width = w
-        if h>height:
-            height = h
-            
-    #pegar os canais
-    for i in imgs:
-        ri = i.resize((width,height),resample=Image.LANCZOS)
-        red, green, blue = ri.split()
-        rpx.append(red.getdata())
-        gpx.append(green.getdata())
-        bpx.append(blue.getdata())
-        i.close()
-        del i
-    
-    #criar para cada canal
-    sr = [0.0]*width*height
-    sg = [0.0]*width*height
-    sb = [0.0]*width*height
-    
-    #somar os pixels por canal
-    for k in range(width*height):
-        for m in range(len(rpx)):
-            sr[k] += rpx[m][k]
-            sg[k] += gpx[m][k]
-            sb[k] += bpx[m][k]
-    
-    #criar as tuplas atraves das medias
-    tuplas = [0]*width*height
-    for k in range(width*height):
-        sr[k] = sr[k] / len(imgs)
-        sg[k] = sg[k] / len(imgs)
-        sb[k] = sb[k] / len(imgs)
-        tuplas[k] = (int(sr[k]),int(sg[k]),int(sb[k]))
-        
-    im = Image.new('RGB',(width, height))
-    im.putdata(tuplas)
-    
-    return im
     
 def createImageAverage(scrCodes,images_path):
     sat = 0

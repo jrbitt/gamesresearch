@@ -2,6 +2,7 @@ from PIL import Image
 from PIL import ImageDraw
 import math, random, sys, codecs
 from database import GamesDatabase
+from imglib import createImages
         
 from sklearn.decomposition import PCA
 from shapely.geometry import Point
@@ -33,10 +34,13 @@ class Screen(object):
         #self.img.thumbnail((100,100),Image.ANTIALIAS)
     
     def createImage(self,thumb_size):
-        temp = Image.open(self.path+self.code+".jpg")
-        self.img = temp.copy()
-        temp.close()
-        self.img.thumbnail((thumb_size,thumb_size),Image.ANTIALIAS)
+        try:
+            temp = Image.open(self.path+self.code+".jpg")
+            self.img = temp.copy()
+            temp.close()
+            self.img.thumbnail((thumb_size,thumb_size),Image.ANTIALIAS)
+        except:
+            print "no create image"
         
     def delImage(self):
         self.img.close()
@@ -46,6 +50,7 @@ class Centroid(object):
     grid = None
     images = []
     canvas = None
+    average_image = None
     image_width = 0
     image_height = 0
     _id = -1
@@ -190,7 +195,7 @@ class Centroid(object):
         
         
         
-    def filterGames(self,maxGames):
+    def filterGames(self,maxGames,thumb=100):
         f = []
         s = []
         for i in self.images:
@@ -212,8 +217,26 @@ class Centroid(object):
             g = gdb.getGameByObject(f[i])
             w = g['name'].replace(u'\xe3', u' ')
             arq.write(w+"\t"+self.images[i].code+"\t"+str(g['_id'])+'\n')
+            self.images[i].createImage(thumb)
         arq.close()
             
+    def organizeByAverageGames(self,kj,thumb=100):
+        #cada centroid deve obter sua imagem media da base
+        self.findDistances()
+        self.images.sort(key=lambda image: image.distance)
+        self.filterGames(kj,thumb)
+        
+        temp = []
+        for i in range(len(self.images)):
+            temp.append(self.images[i].img)
+        #calcular a media usando essas imagens medias
+        if len(temp)>0:
+            self.average_image = createImages(temp)
+            self.average_image.save("saida_media_"+str(self._id)+".png")
+        
+        #aproximar os kj dessa imagem media
+        #quando plotar pinta a media principal e as imagens medias dos kjs
+        
     def organizeByGames(self,colorsByCol,maxGames):
         self.findDistances()
         print "tot.images: "+str(len(self.images))
@@ -430,6 +453,17 @@ class ImageCreator(object):
             if vls[c] not in self.colorsByCol[c].keys():
                 self.colorsByCol[c][vls[c]] =  (random.randint(0,255),random.randint(0,255),random.randint(0,255))
 
+    def createAverageImageByGames(self,maxImgs,thumb=100):
+        temp = []
+        for c in self.centroids:
+            c.organizeByAverageGames(maxImgs,thumb)
+            if c.average_image != None:
+                temp.append(c.average_image)
+
+        if len(temp)>0:
+            average_image = createImages(temp)
+            average_image.save("saida_media.png")
+    
     def createImagesByGames(self,rgb,offset,maxGames=-1):
         i = 0
         self.colorsByCol = {10: {'1990': (207, 25, 49), '2000': (135, 82, 128), '2010': (57, 75, 79), '1980': (79, 36, 118), '1970': (103, 249, 226)}}
@@ -521,7 +555,13 @@ def main():
     #Gerar as imagens
     #ic.createImages((128,128,128),10)
     
-    ic.createImagesByGames((128,128,128),10,25)
+    #Gerar imagens pra cada cluster usando a imagem media do jogo
+    #ic.createImagesByGames((128,128,128),10,25)
+    
+    #Gerar uma imagem para k clusters
+    ic.createAverageImageByGames(10,600)
+    
+    
     #ic.createImage(50,"clusters_galloway.png",(3,1),(128,128,128))
                 
         
