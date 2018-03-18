@@ -1,0 +1,4 @@
+import numpy as np
+
+obs = np.array([[10, 10, 20], [20, 20, 20]])
+chi2_contingency(obs)

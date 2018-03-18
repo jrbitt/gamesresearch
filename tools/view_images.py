@@ -3,6 +3,8 @@ from PIL import ImageDraw
 import math, random, sys, codecs
 from database import GamesDatabase
 from imglib import createImages
+from imglib import compareImages
+from imglib import drawSpiral
         
 from sklearn.decomposition import PCA
 from shapely.geometry import Point
@@ -42,6 +44,12 @@ class Screen(object):
         except:
             print "no create image"
         
+    def compare(self,avgValues):
+        dist = 0
+        for i in range(len(self.values)):
+            dist = dist + pow(avgValues[i]-self.values[i],2)
+        self.distance = math.sqrt(dist)
+    
     def delImage(self):
         self.img.close()
 
@@ -202,29 +210,38 @@ class Centroid(object):
             if i.goid not in f:
                 f.append(i.goid)
                 s.append(i.code)
-        lim = min(maxGames,len(f))
+        if maxGames != -1:
+            lim = min(maxGames,len(f))
+        else:
+            lim = len(f)
         
         gdb = GamesDatabase()
         self.images = self.images[:lim]
         arq = codecs.open('nomes'+str(self._id)+".txt",'w',"utf-8")
         for i in range(lim):
             print f[i]
-            c = gdb.getImageAverage(f[i])
-            if c!= None:
-                self.images[i].code = "/avg_rgb/"+c
-            else:
-                self.images[i].code = s[i]
+            if maxGames != -1:
+                c = gdb.getImageAverage(f[i])
+                if c!= None:
+                    self.images[i].code = "/avg_rgb/"+c
+                else:
+                    self.images[i].code = s[i]
             g = gdb.getGameByObject(f[i])
             w = g['name'].replace(u'\xe3', u' ')
             arq.write(w+"\t"+self.images[i].code+"\t"+str(g['_id'])+'\n')
             self.images[i].createImage(thumb)
         arq.close()
             
-    def organizeByAverageGames(self,kj,thumb=100):
+    def selectGames(self,target,maxGames,thumb):
+        for i in self.images:
+            pass
+        
+    
+    def organizeByAverageGames(self,thumb=100):
         #cada centroid deve obter sua imagem media da base
         self.findDistances()
         self.images.sort(key=lambda image: image.distance)
-        self.filterGames(kj,thumb)
+        self.filterGames(-1,thumb)
         
         temp = []
         for i in range(len(self.images)):
@@ -250,60 +267,7 @@ class Centroid(object):
         #print "tot.images: "+str(len(self.images))
         #sorted(self.images, key=lambda image: Screen.distance)
         #if maxImgs != -1:
-        #    self.images = self.images[:maxImgs]
-    
-    def drawSpiral(self,rgb,offset,colorsByCol,filename):
-        index = self.defineIndex(len(self.images))
-        thumb_size = 100
-            
-        xi = yi = xf = yf = 0
-        SIZE = (thumb_size*index,thumb_size*index)
-        self.canvas = Image.new("RGB", (SIZE[0]*5,SIZE[1]*5), rgb)
-        step = 1
-        x = xi = SIZE[0]/2
-        y = yi = SIZE[1]/2
-        xf = xi +thumb_size
-        yf = yi +thumb_size
-        movement = [(thumb_size,0), (0,-thumb_size), (-thumb_size, 0), (0,thumb_size)]
-        k = 0
-        n = 1
-        i = 0
-        ind = 0
-        while x >= 0 and y >= 0 and x <= SIZE[0] and y <= SIZE[1]:
-            for j in xrange(step):	
-                if ind < len(self.images): 
-                    s = self.images[ind]
-                    s.createImage(thumb_size)
-                    self._paintCols(5,colorsByCol,s,2)
-                    self.canvas.paste(s.img,(x,y))
-                    s.delImage()
-                    if x<xi:
-                        xi = x
-                    if y<yi:
-                        yi = y
-                    if x+thumb_size>xf:
-                        xf = x+thumb_size
-                    if y+thumb_size>yf:
-                        yf = y+thumb_size
-                    orientation = movement[k]
-                    x += orientation[0]
-                    y += orientation[1]
-                    n += 1
-                    ind += 1
-            k = (k+1)%4
-            if (i%2)==1:
-                step += 1
-            i += 1
-            if ind >= len(self.images):
-                break
-        self.canvas = self.canvas.crop((xi,yi,xf,yf))
-        width, height = self.canvas.size
-        self.image_width = width
-        self.image_height = height
-        self.canvas.save(filename)
-        
-        print colorsByCol
-            
+        #    self.images = self.images[:maxImgs]            
         
     def _paintCols(self,size,colorsByCol,s,offset):
         px = 0
@@ -389,7 +353,7 @@ class ImageCreator(object):
         arq.readline()
         lines = arq.readlines()
         i = 0
-        out = open('temp.txt','w')
+        out = open('clusters_para_tese.txt','w')
         for line in lines:
             img = None
             if cls != None:
@@ -456,7 +420,7 @@ class ImageCreator(object):
     def createAverageImageByGames(self,maxImgs,thumb=100):
         temp = []
         for c in self.centroids:
-            c.organizeByAverageGames(maxImgs,thumb)
+            c.organizeByAverageGames(thumb)
             if c.average_image != None:
                 temp.append(c.average_image)
 
@@ -519,6 +483,51 @@ class ImageCreator(object):
                 i+=1
             py += hmax+offset
         out.save(filename)
+    
+    def selectGames(self,maxGames,thumb=100):
+        allImages = []
+        centers = []
+        for c in self.centroids:
+            allImages = allImages + c.images
+            centers.append(c.values)
+        
+        a = np.array(centers)
+        avgCentroids = np.mean(a,axis=0)
+        print avgCentroids
+        pass
+
+        filtered = []
+        for i in allImages:
+            i.compare(avgCentroids)
+            filtered.append(i)
+        
+        filtered.sort(key=lambda image: image.distance)
+        
+        f = []
+        g = []
+        for i in filtered:
+            if i.goid not in g:
+                f.append(i)
+                g.append(i.goid)
+
+        lim = min(maxGames,len(f))
+        
+        gdb = GamesDatabase()
+        h = []
+        arq = codecs.open('jogos.txt','w',"utf-8")
+        for i in range(lim):
+            g = gdb.getGameByObject(f[i].goid)
+            print f[i].values
+            w = g['name'].replace(u'\xe3', u' ')
+            arq.write(w+"\t"+str(g['_id'])+'\n')
+            c = gdb.getImageAverage(f[i].goid)
+
+            f[i].code = "/avg_rgb/"+c
+            f[i].createImage(thumb)
+            h.append(f[i])
+        arq.close()
+        
+        drawSpiral((128,128,128),h,50,'jogos.png',thumb)
         
     def _paintCols(self,size,img,tokens,offset):
         px = 0
@@ -538,7 +547,7 @@ def main():
     #ic.setGenres(['Adventure'])
     #ic.setGenres(['Action'])
     #ic.setGenres(['Strategy','Tactics','Role-Playing (RPG)','Simulation'])
-    ic.setGenres(['Puzzle','Artgame'])
+    #ic.setGenres(['Puzzle','Artgame'])
 
     #Uso tese
     ic.initNoClasses('clusters_tese.txt','nova4_v2.csv','/Users/jrbitt/Dropbox/full2/',[10],[4,5,6,7,8,9,12])  
@@ -558,8 +567,10 @@ def main():
     #Gerar imagens pra cada cluster usando a imagem media do jogo
     #ic.createImagesByGames((128,128,128),10,25)
     
-    #Gerar uma imagem para k clusters
-    ic.createAverageImageByGames(10,600)
+    #Gerar uma imagem dos k clusters
+    #ic.createAverageImageByGames(10,600)
+    
+    ic.selectGames(10,600)
     
     
     #ic.createImage(50,"clusters_galloway.png",(3,1),(128,128,128))

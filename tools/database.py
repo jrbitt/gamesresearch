@@ -29,7 +29,7 @@ class GamesDatabase(object):
     screens = []
     
     def __init__(self):
-        self.connection = pymongo.MongoClient('localhost',27017)
+        self.connection = pymongo.MongoClient('localhost',23456)
         self.db = self.connection['gamesresearch']
         self.collection = self.db['games']
         random.seed(datetime.now())
